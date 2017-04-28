@@ -1,0 +1,46 @@
+#include <Wire.h>         //Libreria para RTC
+#include "RTClib.h"       //Libreria para RTC
+
+RTC_DS1307 rtc;
+
+char daysOfTheWeek[7][12] = {"Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"};
+
+
+void setup () {
+  Serial.begin(9600);
+  Serial.println("Starting arduino...\n");
+  if (! rtc.begin()) {           //Si no puede iniciar el RTC avisa por puerto serie
+    Serial.println("Couldn't find RTC");
+    while (1);
+  }
+  if (! rtc.isrunning()) {       //Si el RTC no esta funcionando avisa por puerto serie y se pone en hora
+    Serial.println("RTC is NOT running!");
+    //Pone el reloj en hora usando los datos de la compilacion
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    //Pone el reloj en hora con los datos elegidos manualmente (año, mes, dia, hora, minuto, segundo)
+    //rtc.adjust(DateTime(2017,4, 28, 19, 20, 0));
+  }
+  delay(500);
+}
+
+
+void loop () {
+  DateTime now = rtc.now();
+  
+  Serial.print(daysOfTheWeek[now.dayOfTheWeek()]);
+  Serial.print('\t');
+  Serial.print(now.day(), DEC);
+  Serial.print('/');
+  Serial.print(now.month(), DEC);
+  Serial.print('/');
+  Serial.print(now.year(), DEC);
+  Serial.print('\t');
+  Serial.print(now.hour(), DEC);
+  Serial.print(':');
+  Serial.print(now.minute(), DEC);
+  Serial.print(':');
+  Serial.println(now.second(), DEC);
+  Serial.println();
+  
+  delay(2000);
+}
