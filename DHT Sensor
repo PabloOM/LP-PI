@@ -1,0 +1,43 @@
+/*
+ * FUNCIONAMIENTO DE SENSOR DHT
+ *  - Envia datos por puerto serie
+ * 
+ */
+
+#include "DHT.h"
+
+#define DHTPIN 2          //Pin digital al que esta conectado el sensor
+
+//Programa que permite usar todos los sensores de la famila DHT
+#define DHTTYPE DHT11     // DHT 11
+//#define DHTTYPE DHT22   // DHT 22
+//#define DHTTYPE DHT21   // DHT 21
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(9600);     //Inicia la comunicacion serie a 9600 baudios
+  Serial.println("DHTxx test!");
+  dht.begin();            //Inicia sensor DHT
+  delay(2000);            //Permite a los sensores iniciarse correctamente
+}
+
+void loop() {
+  float h = dht.readHumidity();       //Lee humedad
+  float t = dht.readTemperature();    //Lee temperatura en grados celsius
+
+  //Comprueba si las lecturas del sensor son correctas y en caso de fallo avisa por puerto serie
+  if (isnan(h) || isnan(t)) {
+    Serial.println("Failed to read from DHT sensor!");
+    return;
+  }
+
+  Serial.print("Humidity: ");
+  Serial.print(h);
+  Serial.print(" %\t");
+  Serial.print("Temperature: ");
+  Serial.print(t);
+  Serial.println(" C");
+
+  delay(1000);
+}
