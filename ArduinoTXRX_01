@@ -1,0 +1,66 @@
+/*
+   Enviando un 1 a través del puerto serie encendemos el LED interno del Arduino,
+   y enviando cualquier otro caracter apagamos en LED. Cada vez que hay un nuevo
+   envío por el puerto serie se envía la información del estado del LED seguida de
+   la hora almacenada en el Arduino mediante RTC
+*/
+
+#include <Wire.h>         //Libreria para RTC
+#include "RTClib.h"       //Libreria para RTC
+
+RTC_DS1307 rtc;
+
+char daysOfTheWeek[7][12] = {"Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"};
+
+
+void setup() {
+  pinMode(13, OUTPUT);        // Pin conectado a LED
+  pinMode(10, OUTPUT);        // Pin conectado a zumbador
+  Serial.begin(9600);
+  if (! rtc.begin()) {           //Si no puede iniciar el RTC avisa por puerto serie
+    digitalWrite(10, HIGH);
+    delay(250);
+    digitalWrite(10, LOW);
+    while (1);
+  }
+}
+
+void loop() {
+  //En caso que haya información en el Serial Port, se entra en esta estructura
+  if (Serial.available() > 0) {
+    //Se lee la información entrante en el Serial Port
+    int input = Serial.read();
+    DateTime now = rtc.now();
+    if (input == '1') {
+      //Si el valor de input es 1, se enciende el led
+      digitalWrite(13, HIGH);
+      /*
+         Se envía el mensaje "Encendido", seguido de un símbolo -
+         y la hora obtenida del RTC de Arduino
+      */
+      String output = "Encendido -";
+      output += now.hour();
+      output += ":";
+      output += now.minute();
+      output += ":";
+      output += now.second();
+      Serial.println(output);
+    }
+    else
+    {
+      //Si el valor de input es diferente de 1, se apaga el LED
+      digitalWrite(13, LOW);
+      /*
+         Se envía el mensaje "Apagado", seguido de un símbolo -
+         y la hora obtenida del RTC de Arduino
+      */
+      String output = "Apagado -";
+      output += now.hour();
+      output += ":";
+      output += now.minute();
+      output += ":";
+      output += now.second();
+      Serial.println(output);
+    }
+  }
+}
